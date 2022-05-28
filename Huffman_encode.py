@@ -39,7 +39,7 @@ def sort(l):
 				l[j], l[j+1]=l[j+1], l[j]
 
 def count_freq(name):
-	freq=[0 for i in range(128)]
+	freq=[0 for i in range(256)]
 	read_file=open(name, "r")
 	sym=read_file.read(1)
 	while(sym!=''):
@@ -54,7 +54,7 @@ def count_freq(name):
 
 def make_tree(freq):
 	list_tree=[]
-	for i in range(128):
+	for i in range(256):
 		if freq[i]!=0:
 			list_tree.append(Tree(chr(i), freq[i]))
 
@@ -69,12 +69,39 @@ def encode(name, freq, codes):
 	to_encode=open(name, "r")
 	encoded=open(name[:-4]+"_encoded.txt", 'wb')
 	encoded.write(" ".encode("ascii"))
-	for i in range (128):
+	for i in range (256):
 		if (freq[i]!=0):
 			encoded.write(('\x01'+chr(i)+str(freq[i])).encode("ascii"))
-			# print((chr('\x01')+chr(i)+str(freq[i])).encode("utf-8"))
 	encoded.write("\x02".encode("ascii"))
-	
+	sym=to_encode.read(1)
+	i=0
+	j=0
+	count=0
+	char=0
+	while True:
+		char=char<<1
+		if (codes[sym])[j]=='1':
+			char=char|1
+		i+=1
+		j+=1
+		if (i==7):
+			i=0
+			encoded.write(chr(char).encode("ascii"))
+			char=0
+		if j==len(codes[sym]):
+			j=0
+			count+=1
+			sym=to_encode.read(1)
+			
+		if sym=='':
+			break
+	if i>0:
+		char=char<<8-i
+		encoded.write(chr(char).encode("ascii"))
+	encoded.seek(0)
+	encoded.write(str(8-i).encode("ascii"))
+	encoded.close()
+	to_encode.close()
 
 
 
@@ -85,6 +112,7 @@ freq=count_freq("C:/Users/User/Desktop/read.txt")
 tree=make_tree(freq)
 
 codes=tree.preorder()
+
 
 encode("C:/Users/User/Desktop/read.txt", freq, codes)
 
