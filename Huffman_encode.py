@@ -1,4 +1,5 @@
 import sys
+import os
 class Tree:
     def __init__(self, key, value, left=None, right=None):
         self.key = key
@@ -39,8 +40,12 @@ def sort(l):
 				l[j], l[j+1]=l[j+1], l[j]
 
 def count_freq(name):
-	freq=[0 for i in range(256)]
-	read_file=open(name, "r")
+	freq=[0 for i in range(128)]
+	try:
+		read_file=open(name, "r")
+	except:
+		print("Указанный файл не может быть открыт")
+		exit()
 	sym=read_file.read(1)
 	while(sym!=''):
 		try:
@@ -54,7 +59,7 @@ def count_freq(name):
 
 def make_tree(freq):
 	list_tree=[]
-	for i in range(256):
+	for i in range(128):
 		if freq[i]!=0:
 			list_tree.append(Tree(chr(i), freq[i]))
 
@@ -66,10 +71,14 @@ def make_tree(freq):
 	return list_tree[0]
 
 def encode(name, freq, codes):
-	to_encode=open(name, "r")
-	encoded=open(name[:-4]+"_encoded.txt", 'wb')
+	try:
+		to_encode=open(name, "r")
+		encoded=open(name[:-4]+"(encoded).txt", 'wb')
+	except:
+		print("Указанный файл не может быть открыт")
+		exit()
 	encoded.write(" ".encode("ascii"))
-	for i in range (256):
+	for i in range (128):
 		if (freq[i]!=0):
 			encoded.write(('\x01'+chr(i)+str(freq[i])).encode("ascii"))
 	encoded.write("\x02".encode("ascii"))
@@ -84,9 +93,9 @@ def encode(name, freq, codes):
 			char=char|1
 		i+=1
 		j+=1
-		if (i==7):
+		if (i==8):
 			i=0
-			encoded.write(chr(char).encode("ascii"))
+			encoded.write(bytes([char]))
 			char=0
 		if j==len(codes[sym]):
 			j=0
@@ -97,22 +106,25 @@ def encode(name, freq, codes):
 			break
 	if i>0:
 		char=char<<8-i
-		encoded.write(chr(char).encode("ascii"))
+		encoded.write(bytes([char]))
 	encoded.seek(0)
 	encoded.write(str(8-i).encode("ascii"))
 	encoded.close()
 	to_encode.close()
 
 
-
-
-
 #вызовы 
-freq=count_freq("C:/Users/User/Desktop/read.txt")
+name=input("Введите путь файла для кодировки: ")
+os.chdir("c:")
+p=os.path.abspath(name)
+if p not in sys.path: 
+	os.chdir("d:")
+	p=os.path.abspath(p)
+
+freq=count_freq(p)
 tree=make_tree(freq)
 
 codes=tree.preorder()
 
-
-encode("C:/Users/User/Desktop/read.txt", freq, codes)
+encode(p, freq, codes)
 

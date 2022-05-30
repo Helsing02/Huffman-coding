@@ -1,3 +1,6 @@
+import sys
+import os
+import filecmp
 class Tree:
     def __init__(self, key, value, left=None, right=None):
         self.key = key
@@ -50,9 +53,13 @@ def make_tree(freq):
 
     return list_tree[0]
 
-def decode(name_code, name_decoded):
-    decoded=open(name_decoded, "w")
-    code=open(name_code, "rb")
+def decode(name_code):
+    try:
+        decoded=open(name_code[:-13]+"(decoded).txt", "w")
+        code=open(name_code, "rb")
+    except:
+        print("Указанный файл не может быть открыт")
+        exit()
     last_bits=int(code.read(1))
     freq=[0 for i in range(256)]
     sym=code.read(1)
@@ -97,8 +104,6 @@ def decode(name_code, name_decoded):
             break
         if mask==0:
             mask=1<<7
-            if count>0 and count<20:
-                print(sym, chr(sym))
             sym=next_s
             sym=int.from_bytes(sym, "big")
             next_s=code.read(1)
@@ -107,7 +112,33 @@ def decode(name_code, name_decoded):
     code.close()
     decoded.close()
 
+def cmp(name, orig):
+    if filecmp.cmp(name, orig):
+        print("Идентичны")
+    else:
+        print("Неидентичны")
 
 
-decode("C:/Users/User/Desktop/read_encoded.txt", "C:/Users/User/Desktop/read_decoded.txt")
+
+name=input("Введите путь файла для декодировки: ")
+os.chdir("c:")
+p=os.path.abspath(name)
+if p not in sys.path: 
+    os.chdir("d:")
+p=os.path.abspath(p)
+
+decode(p)
+
+name=input("Введите путь оригинального файла: ")
+os.chdir("c:")
+orig=os.path.abspath(name)
+if p not in sys.path: 
+    os.chdir("d:")
+orig=os.path.abspath(orig)
+
+cmp(p[:-13]+"(decoded).txt", orig)
+
+
+
+
 
