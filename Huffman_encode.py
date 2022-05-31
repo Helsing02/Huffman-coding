@@ -1,4 +1,3 @@
-import sys
 import os
 class Tree:
     def __init__(self, key, value, left=None, right=None):
@@ -45,6 +44,7 @@ def count_freq(name):
 		read_file=open(name, "r")
 	except:
 		print("Указанный файл не может быть открыт")
+		input("Нажимте Enter для закрытия консоли")
 		exit()
 	sym=read_file.read(1)
 	while(sym!=''):
@@ -52,7 +52,8 @@ def count_freq(name):
 			freq[ord(sym)]+=1
 		except:
 			print('Символ "'+sym+'" не из семибитной кодировки ASCII')
-			sys.exit()
+			input("Нажимте Enter для закрытия консоли")
+			exit()
 		sym=read_file.read(1)
 	read_file.close()
 	return freq
@@ -76,6 +77,7 @@ def encode(name, freq, codes):
 		encoded=open(name[:-4]+"(encoded).txt", 'wb')
 	except:
 		print("Указанный файл не может быть открыт")
+		input("Нажимте Enter для закрытия консоли")
 		exit()
 	encoded.write(" ".encode("ascii"))
 	for i in range (128):
@@ -114,17 +116,13 @@ def encode(name, freq, codes):
 
 
 #вызовы 
-name=input("Введите путь файла для кодировки: ")
-os.chdir("c:")
-p=os.path.abspath(name)
-if p not in sys.path: 
-	os.chdir("d:")
-	p=os.path.abspath(p)
+p=input("Введите путь файла для кодировки: ")
 
 freq=count_freq(p)
 tree=make_tree(freq)
-
 codes=tree.preorder()
-
 encode(p, freq, codes)
+
+print("Кодировка выполнена успешно.")
+input("Нажимте Enter для закрытия консоли")
 

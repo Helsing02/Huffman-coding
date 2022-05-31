@@ -54,11 +54,13 @@ def make_tree(freq):
     return list_tree[0]
 
 def decode(name_code):
+    length=0
     try:
         decoded=open(name_code[:-13]+"(decoded).txt", "w")
         code=open(name_code, "rb")
     except:
         print("Указанный файл не может быть открыт")
+        input("Нажимте Enter для закрытия консоли")
         exit()
     last_bits=int(code.read(1))
     freq=[0 for i in range(256)]
@@ -84,6 +86,7 @@ def decode(name_code):
     sym=code.read(1)
     sym=int.from_bytes(sym, "big")
     next_s=code.read(1)
+    length+=1
     curr=tree
     end=False
     if next_s==b'':
@@ -107,10 +110,12 @@ def decode(name_code):
             sym=next_s
             sym=int.from_bytes(sym, "big")
             next_s=code.read(1)
+            length+=1
             if next_s==b'':
                 end=True
     code.close()
     decoded.close()
+    return length
 
 def cmp(name, orig):
     if filecmp.cmp(name, orig):
@@ -120,25 +125,19 @@ def cmp(name, orig):
 
 
 
-name=input("Введите путь файла для декодировки: ")
-os.chdir("c:")
-p=os.path.abspath(name)
-if p not in sys.path: 
-    os.chdir("d:")
-p=os.path.abspath(p)
+p=input("Введите путь файла для декодировки: ")
 
-decode(p)
+length=decode(p)
 
-name=input("Введите путь оригинального файла: ")
-os.chdir("c:")
-orig=os.path.abspath(name)
-if p not in sys.path: 
-    os.chdir("d:")
-orig=os.path.abspath(orig)
+orig=input("Введите путь оригинального файла: ")
 
 cmp(p[:-13]+"(decoded).txt", orig)
 
 
+print("Размеры исходного файла в байтах: %d" %os.stat(orig).st_size)
+print("Размеры закодированного файла в байтах: %d" %os.stat(p).st_size)
+print("Размеры закодированного сообщения без учета переданных частот в байтах: %d" %length)
 
 
+input("Нажимте Enter для закрытия консоли")
 
